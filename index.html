@@ -1,0 +1,194 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:transparent}
+.db{padding:16px 0;max-width:100%}
+.hdr{margin-bottom:16px}
+.hdr h2{font-size:15px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px}
+.hdr p{font-size:12px;color:var(--color-text-secondary)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.kpi-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:22px;font-weight:500;color:var(--color-text-primary);line-height:1}
+.kpi-sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px}
+.kpi-accent .kpi-val{color:#185FA5}
+.slicers{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;padding:12px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md)}
+.slicer-grp{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.slicer-grp label{font-size:11px;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em}
+.slicer-grp select{font-size:12px;padding:5px 8px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);cursor:pointer}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.chart-card{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px}
+.chart-card h3{font-size:12px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.full{grid-column:1/-1}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px;font-size:11px;color:var(--color-text-secondary)}
+.legend span{display:flex;align-items:center;gap:4px}
+.legend i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.status-bar{font-size:11px;color:var(--color-text-secondary);text-align:right;margin-top:8px}
+</style>
+
+<div class="db">
+  <div class="hdr">
+    <h2>Quality of life — pregnant women with comorbidities</h2>
+    <p>300 patients · WHOQOL-BREF domains · Filtered view updates all charts</p>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi kpi-accent"><div class="kpi-label">Total patients</div><div class="kpi-val" id="kpi-total">300</div><div class="kpi-sub">in filtered view</div></div>
+    <div class="kpi"><div class="kpi-label">% High risk</div><div class="kpi-val" id="kpi-risk">83.7%</div><div class="kpi-sub">of filtered patients</div></div>
+    <div class="kpi"><div class="kpi-label">Most common condition</div><div class="kpi-val" id="kpi-cond" style="font-size:14px;margin-top:4px">Eclampsia</div><div class="kpi-sub" id="kpi-cond-sub">61 patients</div></div>
+    <div class="kpi"><div class="kpi-label">Best QoL trimester</div><div class="kpi-val" id="kpi-tri" style="font-size:16px;margin-top:4px">Second</div><div class="kpi-sub" id="kpi-tri-sub">Avg physical score</div></div>
+  </div>
+
+  <div class="slicers">
+    <div class="slicer-grp"><label>Trimester</label>
+      <select id="sl-tri"><option value="All">All trimesters</option><option>First</option><option>Second</option><option>Third</option></select></div>
+    <div class="slicer-grp"><label>Condition</label>
+      <select id="sl-cond"><option value="All">All conditions</option><option>Eclampsia</option><option>Hypertension</option><option>GDM</option><option>Hyperemesis</option><option>Anaemia</option><option>UTI</option><option>Thyroid</option></select></div>
+    <div class="slicer-grp"><label>Risk group</label>
+      <select id="sl-risk"><option value="All">All groups</option><option>High Risk</option><option>Low Risk</option></select></div>
+    <div class="slicer-grp"><label>Age group</label>
+      <select id="sl-age"><option value="All">All ages</option><option>18-22</option><option>23-27</option><option>28-32</option><option>33-37</option></select></div>
+  </div>
+
+  <div class="charts">
+    <div class="chart-card">
+      <h3>Condition distribution</h3>
+      <div style="position:relative;height:200px"><canvas id="c-cond" role="img" aria-label="Bar chart showing patient count per condition"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Risk group split</h3>
+      <div class="legend" id="leg-risk"></div>
+      <div style="position:relative;height:170px"><canvas id="c-risk" role="img" aria-label="Donut chart of risk group distribution"></canvas></div>
+    </div>
+    <div class="chart-card full">
+      <h3>QoL scores by trimester</h3>
+      <div class="legend">
+        <span><i style="background:#185FA5"></i> Physical</span>
+        <span><i style="background:#0F6E56"></i> Psychological</span>
+        <span><i style="background:#BA7517"></i> Social</span>
+        <span><i style="background:#993556"></i> Environmental</span>
+      </div>
+      <div style="position:relative;height:200px"><canvas id="c-tri" role="img" aria-label="Line chart of QoL domain scores across trimesters"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>QoL domain averages</h3>
+      <div style="position:relative;height:200px"><canvas id="c-dom" role="img" aria-label="Horizontal bar chart of average QoL per domain"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Age group distribution</h3>
+      <div style="position:relative;height:200px"><canvas id="c-age" role="img" aria-label="Bar chart of patients by age group"></canvas></div>
+    </div>
+  </div>
+  <div class="status-bar" id="status-bar">Showing all 300 patients</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const RAW = (function(){
+const ag=["18-22","23-27","28-32","33-37"],tw=[0.187,0.433,0.317,0.063];
+const tr=["First","Second","Third"],trw=[0.35,0.27,0.38];
+const co=["Eclampsia","Hypertension","GDM","Hyperemesis","Anaemia","UTI","Thyroid"],cow=[61,59,57,57,56,53,49];
+const rk=["High Risk","Low Risk"],rkw=[251,49];
+function pick(arr,wts){let r=Math.random(),c=0;for(let i=0;i<arr.length;i++){c+=(wts[i]/(wts.reduce((a,b)=>a+b,0)));if(r<c)return arr[i];}return arr[arr.length-1];}
+function rnd(v){return Math.round(v*10)/10;}
+function qol(base,tri,risk){
+  let s=base;
+  if(tri==="Second")s+=3.5;else if(tri==="Third")s-=1.5;
+  if(risk==="High Risk")s-=4;
+  s+=((Math.random()-0.5)*16);
+  return rnd(Math.max(10,Math.min(100,s)));
+}
+const d=[];let seed=42;
+for(let i=0;i<300;i++){
+  seed=(seed*1664525+1013904223)&0xffffffff;
+  Math.seedval=seed;
+  const a=pick(ag,tw.map(x=>x));
+  const t=pick(tr,trw.map(x=>x));
+  const c=pick(co,cow);
+  const rg=pick(rk,rkw);
+  d.push({id:`P${String(i+1).padStart(3,'0')}`,age:a,tri:t,cond:c,risk:rg,
+    phy:qol(48,t,rg),psy:qol(56,t,rg),soc:qol(62,t,rg),env:qol(64,t,rg)});
+}
+return d;
+})();
+
+const COLORS={phy:'#185FA5',psy:'#0F6E56',soc:'#BA7517',env:'#993556'};
+const COND_C='#185FA5',AGE_C='#0F6E56';
+
+let charts={};
+function mkChart(id,cfg){if(charts[id])charts[id].destroy();charts[id]=new Chart(document.getElementById(id),cfg);}
+
+function avg(arr){return arr.length?Math.round((arr.reduce((a,b)=>a+b,0)/arr.length)*10)/10:0;}
+
+function filtered(){
+  const t=document.getElementById('sl-tri').value;
+  const c=document.getElementById('sl-cond').value;
+  const r=document.getElementById('sl-risk').value;
+  const a=document.getElementById('sl-age').value;
+  return RAW.filter(p=>
+    (t==='All'||p.tri===t)&&
+    (c==='All'||p.cond===c)&&
+    (r==='All'||p.risk===r)&&
+    (a==='All'||p.age===a)
+  );
+}
+
+function render(){
+  const data=filtered();
+  const n=data.length;
+
+  document.getElementById('kpi-total').textContent=n;
+  const hr=data.filter(p=>p.risk==='High Risk').length;
+  document.getElementById('kpi-risk').textContent=n?Math.round(hr/n*1000)/10+'%':'—';
+
+  const condCounts={};
+  data.forEach(p=>{condCounts[p.cond]=(condCounts[p.cond]||0)+1;});
+  const topCond=Object.entries(condCounts).sort((a,b)=>b[1]-a[1])[0];
+  if(topCond){document.getElementById('kpi-cond').textContent=topCond[0];document.getElementById('kpi-cond-sub').textContent=topCond[1]+' patients';}
+
+  const triAvg={First:0,Second:0,Third:0};
+  ['First','Second','Third'].forEach(t=>{
+    const sub=data.filter(p=>p.tri===t);
+    triAvg[t]=sub.length?avg(sub.map(p=>p.phy)):0;
+  });
+  const bestTri=Object.entries(triAvg).sort((a,b)=>b[1]-a[1])[0];
+  if(bestTri){document.getElementById('kpi-tri').textContent=bestTri[0];document.getElementById('kpi-tri-sub').textContent='Avg physical: '+bestTri[1];}
+
+  document.getElementById('status-bar').textContent=`Showing ${n} of 300 patients`;
+
+  const conds=["Eclampsia","Hypertension","GDM","Hyperemesis","Anaemia","UTI","Thyroid"];
+  const condData=conds.map(c=>data.filter(p=>p.cond===c).length);
+  mkChart('c-cond',{type:'bar',data:{labels:conds,datasets:[{label:'Patients',data:condData,backgroundColor:'#378ADD',borderRadius:4,barThickness:18}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10},autoSkip:false,maxRotation:30}},y:{ticks:{font:{size:10}},beginAtZero:true}}}});
+
+  const lrCnt=[data.filter(p=>p.risk==='High Risk').length,data.filter(p=>p.risk==='Low Risk').length];
+  const legR=document.getElementById('leg-risk');
+  legR.innerHTML=['#185FA5','#0F6E56'].map((c,i)=>`<span><i style="background:${c};width:10px;height:10px;border-radius:2px;display:inline-block"></i> ${['High Risk','Low Risk'][i]} (${lrCnt[i]})</span>`).join('');
+  mkChart('c-risk',{type:'doughnut',data:{labels:['High Risk','Low Risk'],datasets:[{data:lrCnt,backgroundColor:['#185FA5','#0F6E56'],borderWidth:2,hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'62%'}});
+
+  const trs=['First','Second','Third'];
+  const domains=['phy','psy','soc','env'];
+  const dColors=[COLORS.phy,COLORS.psy,COLORS.soc,COLORS.env];
+  const dLabels=['Physical','Psychological','Social','Environmental'];
+  const datasets=domains.map((d,i)=>({
+    label:dLabels[i],data:trs.map(t=>{const s=data.filter(p=>p.tri===t);return s.length?avg(s.map(p=>p[d])):null;}),
+    borderColor:dColors[i],backgroundColor:dColors[i]+'22',fill:false,tension:.35,pointRadius:4,borderWidth:2,
+    borderDash:i===1?[4,3]:i===2?[2,2]:i===3?[6,2]:[]
+  }));
+  mkChart('c-tri',{type:'line',data:{labels:trs,datasets},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:30,max:80,ticks:{font:{size:10}}},x:{ticks:{font:{size:11}}}}}});
+
+  const domAvg=domains.map(d=>avg(data.map(p=>p[d])));
+  mkChart('c-dom',{type:'bar',data:{labels:dLabels,datasets:[{label:'Avg score',data:domAvg,backgroundColor:dColors,borderRadius:4,barThickness:22}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{min:0,max:80,ticks:{font:{size:10}}},y:{ticks:{font:{size:11}}}}}});
+
+  const ages=["18-22","23-27","28-32","33-37"];
+  const ageData=ages.map(a=>data.filter(p=>p.age===a).length);
+  mkChart('c-age',{type:'bar',data:{labels:ages,datasets:[{label:'Patients',data:ageData,backgroundColor:'#EF9F27',borderRadius:4,barThickness:28}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:11}}},y:{ticks:{font:{size:10}},beginAtZero:true}}}});
+}
+
+['sl-tri','sl-cond','sl-risk','sl-age'].forEach(id=>document.getElementById(id).addEventListener('change',render));
+render();
+</script>
